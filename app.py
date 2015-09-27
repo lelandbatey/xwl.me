@@ -7,6 +7,7 @@ from db import MdModel
 import jsonpickle
 import requests
 import json
+import bs4
 import os
 from os.path import dirname, realpath, join
 
@@ -19,7 +20,7 @@ APP.config.update(dict(
 ))
 
 
-ROOT_URL = "http://xwl.me/"
+ROOT_URL = "http://localhost:5000/"
 
 def jdump(in_data):
     """Creates prettified json representation of passed in object."""
