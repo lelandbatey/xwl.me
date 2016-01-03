@@ -95,17 +95,6 @@ def component_require(component_alias, *args, **kwargs):
     return _decorator
 
 
-def get_by_shortkey(in_short_url):
-    """Returns a SrcUrl with the given `in_short_url`."""
-    # Get the full url for the given short key
-    entry = db_session.query(
-        model.SrcUrl
-    ).filter(model.SrcUrl.short_key == in_short_url)
-    if entry.count() > 1:
-        raise KeyError("Multiple urls with short_key '{}'".format(in_short_url))
-    else:
-        src_url = entry.first()
-        return src_url
 
 
 @APP.route('/')
@@ -119,22 +108,7 @@ def handle_favicon():
     return ""
 
 # @component_require('md_model', 'markdown_render')
-@APP.route('/<renderer>/<in_short_url>')
-def render_markdown(renderer, in_short_url):
-    """Render the data at the given short_url as markdown."""
-    # Get the appropriate render class
-    render_classes = {"md": MarkdownRender,
-                      "rs": RstRender}
-    if renderer not in render_classes:
-        raise ValueError("No render class of the name '{}'".format(renderer))
-    lang_renderer = render_classes[renderer]()
 
-    src_url = get_by_shortkey(in_short_url).remote_url
-    content = lang_renderer.html(src_url)
-    try:
-        return render_template('md.html', content=content)
-    except:
-        return "no file for this URL"
 
 
 

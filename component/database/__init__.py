@@ -18,7 +18,7 @@ db_session = scoped_session(sessionmaker(autocommit=False,
                                          autoflush=False,
                                          bind=engine))
 
-def init_db(base, models):
+def init_db(base):
     """Creates database with tables, unless they already exist."""
     base.metadata.create_all(engine, checkfirst=True)
 

@@ -6,6 +6,8 @@ from __future__ import print_function
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, Float
 
+from . import init_db
+
 Base = declarative_base()
 
 
@@ -34,4 +36,4 @@ class SrcUrl(Base):
         """String representation"""
         return str(self.json)
 
-
+init_db(SrcUrl)

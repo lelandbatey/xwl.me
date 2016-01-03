@@ -25,9 +25,9 @@ h1 {
 {% for item in fullList %}
     <li>
         <ul>
-            <li><a href="{{ item.remoteUrl }}">{{ item.remote_url }} </a></li>
-            <li><a href="/rs/{{ item.shortUrl }}">/rs/{{ item.short_key }}</a></li>
-            <li><a href="/md/{{ item.shortUrl}} ">/md/{{ item.short_key }} </a></li>
+            <li><a href="{{ item.remote_url }}">{{ item.remote_url }} </a></li>
+            <li><a href="/rs/{{ item.short_key }}">/rs/{{ item.short_key }}</a></li>
+            <li><a href="/md/{{ item.short_key}} ">/md/{{ item.short_key }} </a></li>
         </ul>
     </li>
 {% endfor %}
