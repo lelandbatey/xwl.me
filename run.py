@@ -2,7 +2,7 @@
 """Configure WSGI app and run."""
 
 from __future__ import print_function
-from component import frontend
+from app import frontend
 
 APP = frontend.APP
 APP.config.update({"ROOT_URL":"http://localhost:5000/"})

@@ -9,7 +9,7 @@ from functools import wraps
 
 import flask
 
-from ..blueprint import render_markup
+from ..blueprint import render_markup, pretty_article
 
 
 APP = flask.Flask(__name__,
@@ -17,5 +17,6 @@ APP = flask.Flask(__name__,
                   static_folder=join(dirname(realpath(__file__)), "static"))
 
 APP.register_blueprint(render_markup.BP)
+APP.register_blueprint(pretty_article.BP)
 
 

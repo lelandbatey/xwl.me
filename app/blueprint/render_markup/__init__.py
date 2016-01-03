@@ -4,7 +4,6 @@
 
 from __future__ import print_function
 from os.path import join, dirname, realpath
-from functools import wraps
 
 import requests
 import flask

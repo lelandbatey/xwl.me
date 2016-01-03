@@ -20,7 +20,7 @@ class RstRender(object):
             else:
                 raise ValueError("No url provided")
         # Don't make requests to large urls
-        content_length = int(request.head(url).headers['content-length'])
+        content_length = int(requests.head(url).headers['content-length'])
         if content_length > 100000000:
             raise ValueError("Url source is too large.")
         req = requests.get(url)
