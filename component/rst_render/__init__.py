@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 
-"""Rendering markdown from the contents of the data at a url."""
+"""Rendering ReStructuredText from the contents of the data at a url."""
 
 from __future__ import print_function
 
-from markdown import markdown
+from docutils.core import publish_string
 import requests
 
 
-class MarkdownRender(object):
+class RstRender(object):
     """Get's the text at a given URL then renders that text as Markdown to
     HTML."""
     def __init__(self, url=None):
@@ -24,8 +24,6 @@ class MarkdownRender(object):
         if content_length > 100000000:
             raise ValueError("Url source is too large.")
         req = requests.get(url)
-        md = markdown(req.text)
-        return md
-
-
+        content = publish_string(req.text, writer_name='html')
+        return content
 

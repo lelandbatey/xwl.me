@@ -3,19 +3,32 @@
 """Flask frontend component for xwl.me."""
 
 from __future__ import print_function
+from os.path import join, dirname, realpath
 from functools import wraps
 
 import jsonpickle
 import flask
 
+from ..database import model, db_session
+from ..markdown_render import MarkdownRender
+from ..rst_render import RstRender
 
 # Set encoding options so jsonpickle will pretty-print it's output
 jsonpickle.set_preferred_backend('json')
 jsonpickle.set_encoder_options('json', sort_keys=True,
                                indent=4, separators=(',', ': '))
 
+APP = flask.Flask(__name__,
+                  template_folder=join(dirname(realpath(__file__)), "templates"),
+                  static_folder=join(dirname(realpath(__file__)), "static"))
 
-APP = flask.Flask(__name__)
+# APP = flask.Flask(__name__)
+
+@APP.teardown_appcontext
+def shutdown_session(exception=None):
+    """Removes sessions when flask contexts are torn down."""
+    db_session.remove()
+
 
 def component_register(alias, cls):
     """Registers the given class as a component under
@@ -42,10 +55,16 @@ def components_all_registered(app):
     missing = sorted(required - set(registered.keys()))
     return bool(len(missing))
 
-def component_require(component_alias):
-    """Decorator to register a component as being required for a method. When
-    the method is run, if there's not a component registered under
-    `component_alias`, raise a `LookupError`."""
+def component_require(component_alias, *args, **kwargs):
+    """Decorator to register a component or series of components as being
+    required for a method. When the method is run, if there's not a component
+    registered under `component_alias`, raise a `LookupError`."""
+
+    aliases = [component_alias]
+    if args:
+        aliases += args
+    if kwargs:
+        aliases += list(kwargs.values())
 
     # Register `component_alias` as a required component
     required = None
@@ -53,7 +72,8 @@ def component_require(component_alias):
         APP.config['REQUIRED_COMPONENTS'] = set()
         APP.config['ALL_COMPONENTS_REGISTERED'] = False
     required = APP.config['REQUIRED_COMPONENTS']
-    required.add(component_alias)
+    for alias in aliases:
+        required.add(alias)
 
     def _decorator(func):
         """Since `require_component` is a decorator that takes arguments, it
@@ -75,11 +95,48 @@ def component_require(component_alias):
     return _decorator
 
 
+def get_by_shortkey(in_short_url):
+    """Returns a SrcUrl with the given `in_short_url`."""
+    # Get the full url for the given short key
+    entry = db_session.query(
+        model.SrcUrl
+    ).filter(model.SrcUrl.short_key == in_short_url)
+    if entry.count() > 1:
+        raise KeyError("Multiple urls with short_key '{}'".format(in_short_url))
+    else:
+        src_url = entry.first()
+        return src_url
+
 
 @APP.route('/')
 def home():
     """Render the frontpage"""
-    return render_template('frontpage.html')
+    return flask.render_template('frontpage.html')
+
+@APP.route('/favicon.ico')
+def handle_favicon():
+    """Return empty data for requested favicons; prevents errors."""
+    return ""
+
+# @component_require('md_model', 'markdown_render')
+@APP.route('/<renderer>/<in_short_url>')
+def render_markdown(renderer, in_short_url):
+    """Render the data at the given short_url as markdown."""
+    # Get the appropriate render class
+    render_classes = {"md": MarkdownRender,
+                      "rs": RstRender}
+    if renderer not in render_classes:
+        raise ValueError("No render class of the name '{}'".format(renderer))
+    lang_renderer = render_classes[renderer]()
+
+    src_url = get_by_shortkey(in_short_url).remote_url
+    content = lang_renderer.html(src_url)
+    try:
+        return render_template('md.html', content=content)
+    except:
+        return "no file for this URL"
+
+
 
 
 
