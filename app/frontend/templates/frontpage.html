@@ -1,39 +1,6 @@
 {% extends "main.html" %}
 
 {% block more_script %}
-<script type="text/javascript">
-
-function getPageJson(){
-    
-    var origURL = $('#urlField').val();
-    var docURL = '/ar/'+origURL;
-    console.log(docURL);
-    
-    $.getJSON(docURL,
-        function(data){
-            
-            $('#parsedDocLinkHold').empty()
-
-            parsedLinksAppender("Original Link: ", "#parsedDocLinkHold", origURL);
-            parsedLinksAppender("Markdown: ", "#parsedDocLinkHold", data.parsedMD);
-            parsedLinksAppender("reStructuredText: ", "#parsedDocLinkHold", data.parsedREST);
-            parsedLinksAppender("Redirect: ", "#parsedDocLinkHold", data.redirect);            
-        });
-}
-
-var parsedLinksAppender = function(headText,appendToDiv,link){
-    $('<a>',{
-        text: headText,
-        href: link
-    }).appendTo(appendToDiv);
-    $('<code>',{
-        text: link
-    }).appendTo(appendToDiv);
-
-    $('<br>').appendTo(appendToDiv);
-
-}
-</script>
 {% endblock %}
 
 
@@ -41,11 +8,6 @@ var parsedLinksAppender = function(headText,appendToDiv,link){
 <h1>Live Markup-Parsing Service</h1>
 <p>Give us a live link to the document you're writing, and we'll give you a live link to the parsed version of that document.</p>
 <hr />
-<p>
-    <input id="urlField" size="40"></input>
-    <button onclick="getPageJson()">Get links!</button>
-</p>
-<p id="parsedDocLinkHold"></p>
 
 <h3>Here's a longer explanation:</h3>
 <p>Let's say you have a file in your Dropbox. It's written in plain-text, but it uses <a href="http://daringfireball.net/projects/markdown/">Markdown</a> for its markup. You wish you could see what that document looks like if it were actually rendered, and you wish you had a public URL you could send your friends so they could see what your document looks like too.</p>
@@ -56,16 +18,7 @@ var parsedLinksAppender = function(headText,appendToDiv,link){
 <blockquote>
 <p>Lets say I have a markdown-formatted document at <code>http://lelandbatey.com/example.md</code> . I want to see what my markdown file will look like when it's converted to HTML. To submit my URL to xwl, I'd type in <code>"http://xwl.me/add/[MY_URL_GOES_HERE!]"</code>. </p>
 <p>For my example document, it'd look like this: <code>http://xwl.me/add/http://lelandbatey.com/example.md</code></p>
-<p>When I navigate to <code>http://xwl.me/add/http://lelandbatey.com/example.md</code> I get served a page that contains just the following:</p>
-</blockquote>
-<pre><code>    "parsedMD": "http://xwl.me/md/f34t26y4pfpt4oa",
-    "parsedREST": "http://xwl.me/rs/f34t26y4pfpt4oa",
-    "redirect": "http://xwl.me/r/f34t26y4pfpt4oa",
-    "shortString": "f34t26y4pfpt4oa"
-</code></pre>
-<blockquote>
-<p>You have your "parsedMD" url which is your doc parsed as <strong>Markdown</strong>, the "parsedREST" which is parsed using the <strong>reStructuredText</strong> parser, and "redirect" which redirects anyone who visits it to your source file.</p>
-<p>You'll notice that each of these URL's is exactly the same, except for the couple of letters in the middle. That's intentional so you can easily access the different operations that can be run on your file.</p>
+<p>When I navigate to <code>http://xwl.me/add/http://lelandbatey.com/example.md</code> I get served a page that contains the result of translating that markdown to html.</p>
 </blockquote>
 <hr />
 <h2>Get Started!</h2>
