@@ -15,6 +15,7 @@ import re
 
 import requests
 import bs4
+from .remove_empty_div import remove_empty_elems
 
 from pprint import pprint
 
@@ -96,19 +97,11 @@ def find_longest_paragraph(soup, rigorous=True):
             longest = elem
     return longest
 
+def remove_noncontent(in_string):
+    """Returns the string representing the html tree passed in, but with
+    everything before and after the article removed."""
 
-def get_body(in_url):
-    """Returns main textual body of page."""
-
-    # Gather the contents of the page.
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:26.0) Gecko/20100101 Firefox/26.0'
-    }
-    if 'http' not in in_url:
-        in_url = 'http://'+in_url
-    r = requests.get(in_url, headers=headers)
-
-    soup = bs4.BeautifulSoup(r.text, "html.parser")
+    soup = bs4.BeautifulSoup(in_string, "html.parser")
 
     most_children = None
     child_count = 0
@@ -154,6 +147,36 @@ def get_body(in_url):
     while longest.parent:
         longest = longest.parent
 
+    body = longest.find('body')
+    if body:
+        longest = body
+        longest.name = "div"
+
     return longest.prettify()
+
+
+def get_body(in_url):
+    """Returns main textual body of page."""
+
+    # Gather the contents of the page.
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:26.0) Gecko/20100101 Firefox/26.0'
+    }
+    if 'http' not in in_url:
+        in_url = 'http://'+in_url
+    r = requests.get(in_url, headers=headers)
+
+    main_body = remove_noncontent(r.text.encode('utf-8'))
+    clean_body = remove_empty_elems(main_body)
+
+    # Remove the additional tags added by lxml in remove_empty_elems
+    soup = bs4.BeautifulSoup(clean_body, "html.parser")
+    body = soup.find('body')
+    if body:
+        soup = body
+        soup.name = 'div'
+
+    return soup.prettify()
+
 
 
