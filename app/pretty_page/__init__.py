@@ -166,6 +166,7 @@ def get_body(in_url):
     if 'http' not in in_url:
         in_url = 'http://'+in_url
     r = requests.get(in_url, headers=headers)
+    r.encoding = 'utf-8'
 
     main_body = remove_noncontent(r.text.encode('utf-8'))
     clean_body = remove_empty_elems(main_body)
