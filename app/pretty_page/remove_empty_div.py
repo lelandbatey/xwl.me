@@ -22,7 +22,7 @@ def has_text(tree, good_map):
     False."""
     retv = False
     try:
-        if tree.text and tree.text.strip():
+        if (tree.text and tree.text.strip()) or tree.tag == 'img':
             good_map[tree] = GOOD
             retv =  True
     except AttributeError:

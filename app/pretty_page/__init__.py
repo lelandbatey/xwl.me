@@ -14,6 +14,7 @@ from __future__ import print_function
 import re
 
 import requests
+import lxml
 import bs4
 from .remove_empty_div import remove_empty_elems
 
@@ -101,7 +102,7 @@ def remove_noncontent(in_string):
     """Returns the string representing the html tree passed in, but with
     everything before and after the article removed."""
 
-    soup = bs4.BeautifulSoup(in_string, "html.parser")
+    soup = bs4.BeautifulSoup(in_string, "lxml")
 
     most_children = None
     child_count = 0
@@ -170,13 +171,17 @@ def get_body(in_url):
     clean_body = remove_empty_elems(main_body)
 
     # Remove the additional tags added by lxml in remove_empty_elems
-    soup = bs4.BeautifulSoup(clean_body, "html.parser")
+    soup = bs4.BeautifulSoup(clean_body, "lxml")
     body = soup.find('body')
     if body:
         soup = body
         soup.name = 'div'
 
-    return soup.prettify()
+    page = soup.prettify()
+    page = lxml.html.fromstring(page)
+    page.make_links_absolute(base_url=in_url)
+
+    return lxml.html.tostring(page)
 
 
 
